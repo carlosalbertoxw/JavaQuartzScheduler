@@ -9,3 +9,19 @@ dist/
 nbdist/
 target/
 nbtarget/
+
+#Logs
+logs/
+*.log
+
+#Eclipse
+.project
+.classpath
+.settings/
+.factorypath
+bin/
+
+#IntelliJ / VS Code
+.idea/
+*.iml
+.vscode/

@@ -1,30 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.carlosalbertoxw.jqs;
 
-import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * Tarea que ejecuta el scheduler en cada disparo del trigger. Aqui iria la logica
+ * de negocio a automatizar; en este ejemplo simplemente registra un mensaje.
  *
  * @author Carlos
  */
 public class Worker implements Job {
 
-    private static final Logger LOG = Logger.getLogger(Worker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Worker.class);
 
     @Override
-    public void execute(JobExecutionContext jec) throws JobExecutionException {
-        LOG.trace("Trace Message!");
-        LOG.debug("Debug Message!");
-        LOG.info("Info Message!");
-        LOG.warn("Warn Message!");
-        LOG.error("Error Message!");
+    public void execute(JobExecutionContext context) throws JobExecutionException {
+        LOG.info("Ejecutando tarea. Proximo disparo: {}", context.getNextFireTime());
     }
-
 }

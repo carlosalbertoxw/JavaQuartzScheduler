@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Salida por consola -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{1}:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Salida a archivo con rotacion diaria y por tamano.
+         Por defecto los logs se crean en la carpeta ./logs relativa al
+         directorio de ejecucion. Puede cambiarse con -Dlog.dir=/ruta -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.dir:-logs}/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir:-logs}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>5MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{1}:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Quartz es bastante verboso en INFO durante el arranque -->
+    <logger name="org.quartz" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>
