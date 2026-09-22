@@ -25,3 +25,9 @@ bin/
 .idea/
 *.iml
 .vscode/
+
+#Maven
+dependency-reduced-pom.xml
+
+#Reportes generados por DailyReport
+reports/

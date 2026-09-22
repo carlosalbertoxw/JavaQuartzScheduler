@@ -1,0 +1,20 @@
+# Unidad de systemd. Copiar a /etc/systemd/system/ y ejecutar:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now javaquartzscheduler
+[Unit]
+Description=JavaQuartzScheduler - rutinas programadas con Quartz Scheduler
+After=network.target
+
+[Service]
+Type=simple
+User=jqs
+WorkingDirectory=/opt/javaquartzscheduler
+ExecStart=/usr/bin/java -jar /opt/javaquartzscheduler/JavaQuartzScheduler-3.0-shaded.jar
+# SIGTERM ejecuta el hook de apagado; la JVM termina con 143 en ese caso.
+SuccessExitStatus=143
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

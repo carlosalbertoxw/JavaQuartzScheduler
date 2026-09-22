@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- En pruebas solo consola (sin archivo en logs/) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss} %-5level %logger{1} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- RoutineJobTest provoca fallos a proposito; sus trazas solo ensucian la salida -->
+    <logger name="com.carlosalbertoxw.jqs.jobs" level="OFF"/>
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

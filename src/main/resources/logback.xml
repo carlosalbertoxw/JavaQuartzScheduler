@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- Carpeta de logs: -Dlog.dir=/ruta si se indica, si no ./logs junto al jar
+         (tambien al ejecutarse como servicio). -->
+    <define name="LOG_DIR" class="com.carlosalbertoxw.jqs.LogDirPropertyDefiner"/>
+
     <!-- Salida por consola -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -8,15 +12,13 @@
         </encoder>
     </appender>
 
-    <!-- Salida a archivo con rotacion diaria y por tamano.
-         Por defecto los logs se crean en la carpeta ./logs relativa al
-         directorio de ejecucion. Puede cambiarse con -Dlog.dir=/ruta -->
+    <!-- Salida a archivo con rotacion diaria y por tamano -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${log.dir:-logs}/application.log</file>
+        <file>${LOG_DIR}/application.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${log.dir:-logs}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/application.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>5MB</maxFileSize>
-            <maxHistory>10</maxHistory>
+            <maxHistory>14</maxHistory>
             <totalSizeCap>100MB</totalSizeCap>
         </rollingPolicy>
         <encoder>
@@ -24,7 +26,8 @@
         </encoder>
     </appender>
 
-    <!-- Quartz es bastante verboso en INFO durante el arranque -->
+    <!-- Quartz es bastante verboso en INFO durante el arranque. En WARN tambien se
+         omite su aviso "Job ... threw a JobExecutionException", que RoutineJob ya registra. -->
     <logger name="org.quartz" level="WARN"/>
 
     <root level="INFO">

@@ -1,0 +1,38 @@
+# Rutinas programadas. Cada elemento crea un job y un trigger de Quartz; "service" es la
+# clave con la que se registro su RoutineService en Main.registerServices().
+# Para usar otra configuracion sin recompilar, copia este archivo junto al jar
+# o pasa su ruta como primer argumento del programa.
+#
+# Cron de Quartz: segundo minuto hora diaMes mes diaSemana [anio]
+# Zona horaria: ID IANA (p. ej. America/Mexico_City). Vacio = UTC.
+routines:
+  # Ejemplo minimo: cada minuto registra inicio y fin.
+  - name: RoutineJob
+    group: Routines
+    service: Example
+    cronExpression: "0 * * ? * *"
+    timeZone: ""
+    enabled: true
+
+  # De lunes a viernes a las 7:00 (hora de Mexico) escribe reports/report-<fecha>.txt.
+  - name: DailyReport
+    group: Reports
+    service: DailyReport
+    cronExpression: "0 0 7 ? * MON-FRI"
+    timeZone: America/Mexico_City
+    enabled: true
+
+  # Todos los dias a las 3:30 (UTC) borra los reportes con mas de retentionDays dias.
+  - name: ReportCleanup
+    group: Reports
+    service: ReportCleanup
+    cronExpression: "0 30 3 * * ?"
+    timeZone: ""
+    enabled: true
+
+# Configuracion de las rutinas de reportes.
+reports:
+  # Carpeta de reportes. Relativa = junto al jar.
+  directory: reports
+  # Dias que se conservan los reportes antes de borrarlos (1-3650).
+  retentionDays: 7
