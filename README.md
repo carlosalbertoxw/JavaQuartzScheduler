@@ -68,7 +68,7 @@ LICENSE                               # Licencia MIT
 ## Requisitos
 
 - Java 25 o superior (el build lo verifica con `maven-enforcer-plugin`)
-- Maven no es necesario: el proyecto incluye Maven Wrapper (`mvnw` / `mvnw.cmd`), que descarga Maven 3.9.16
+- Maven no es necesario: el proyecto incluye Maven Wrapper (`mvnw` / `mvnw.cmd`), que descarga Maven 3.10.0
   la primera vez.
 
 ## Compilación y pruebas
@@ -291,7 +291,7 @@ sobre el proyecto → *Run As → JUnit Test*. Los archivos específicos de Ecli
 
 ### 3.1
 
-- Java 25, Maven 3.9.16 y dependencias actualizadas.
+- Java 25, Maven 3.10.0 y dependencias actualizadas.
 - El jar ejecutable se llama `JavaQuartzScheduler.jar` (sin versión); los archivos de `deploy/` ya no cambian
   entre versiones.
 - La rutina de ejemplo se llama `Example` (antes `RoutineJob`, igual que la clase del job).
