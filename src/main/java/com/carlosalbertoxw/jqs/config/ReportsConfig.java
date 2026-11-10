@@ -12,7 +12,7 @@ import com.carlosalbertoxw.jqs.AppDirectory;
  */
 public class ReportsConfig {
 
-    static final int MAX_RETENTION_DAYS = 3650;
+    private static final int MAX_RETENTION_DAYS = 3650;
 
     /** Carpeta donde se escriben los reportes. Relativa = junto al jar. */
     private String directory = "reports";

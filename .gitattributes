@@ -1,0 +1,4 @@
+# Finales de linea LF en el repositorio y al hacer checkout (igual en Windows y Linux),
+# coherente con end_of_line de .editorconfig. Los scripts .cmd necesitan CRLF.
+* text=auto eol=lf
+*.cmd text eol=crlf

@@ -50,7 +50,7 @@ public class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    static final String CONFIG_FILE = "routines.yml";
+    private static final String CONFIG_FILE = "routines.yml";
 
     public static void main(String[] args) {
         LOG.info("Iniciando JavaQuartzScheduler...");

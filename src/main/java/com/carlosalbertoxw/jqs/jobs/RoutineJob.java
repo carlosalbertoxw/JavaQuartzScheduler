@@ -9,6 +9,7 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.carlosalbertoxw.jqs.services.RoutineService;
 import com.carlosalbertoxw.jqs.services.RoutineServices;
@@ -23,6 +24,8 @@ import com.carlosalbertoxw.jqs.services.RoutineServices;
  *   <li>Las excepciones se relanzan como {@link JobExecutionException} para que Quartz
  *       aplique su politica de registro; el siguiente disparo del cron la reintenta.</li>
  *   <li>Es {@link InterruptableJob}: en el apagado se interrumpe el hilo de la rutina.</li>
+ *   <li>Durante la ejecucion, el MDC lleva la clave {@value #MDC_ROUTINE} con la rutina, que
+ *       {@code logback.xml} muestra en cada linea.</li>
  * </ul>
  */
 @DisallowConcurrentExecution
@@ -32,6 +35,9 @@ public final class RoutineJob implements InterruptableJob {
 
     /** Clave del JobDataMap con la clave del servicio a ejecutar. */
     public static final String SERVICE_KEY = "routineService";
+
+    /** Clave del MDC con la identidad (group.name) de la rutina en ejecucion. */
+    public static final String MDC_ROUTINE = "routine";
 
     private final RoutineServices services;
 
@@ -46,6 +52,7 @@ public final class RoutineJob implements InterruptableJob {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         final JobKey jobKey = context.getJobDetail().getKey();
         executingThread = Thread.currentThread();
+        MDC.put(MDC_ROUTINE, jobKey.toString());
         try {
             final Object serviceKey = context.getMergedJobDataMap().get(SERVICE_KEY);
             if (!(serviceKey instanceof String key)) {
@@ -62,6 +69,7 @@ public final class RoutineJob implements InterruptableJob {
         } catch (Exception e) {
             throw fail(jobKey, e);
         } finally {
+            MDC.remove(MDC_ROUTINE);
             executingThread = null;
             // Limpia la marca de interrupcion para no afectar al hilo del pool de Quartz.
             Thread.interrupted();

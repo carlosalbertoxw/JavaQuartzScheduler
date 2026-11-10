@@ -9,7 +9,7 @@ After=network.target
 Type=simple
 User=jqs
 WorkingDirectory=/opt/javaquartzscheduler
-ExecStart=/usr/bin/java -jar /opt/javaquartzscheduler/JavaQuartzScheduler-3.0-shaded.jar
+ExecStart=/usr/bin/java -jar /opt/javaquartzscheduler/JavaQuartzScheduler.jar
 # SIGTERM ejecuta el hook de apagado; la JVM termina con 143 en ese caso.
 SuccessExitStatus=143
 TimeoutStopSec=30

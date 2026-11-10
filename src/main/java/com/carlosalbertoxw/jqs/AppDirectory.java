@@ -13,10 +13,17 @@ import java.nio.file.Path;
  */
 public final class AppDirectory {
 
+    /** Se calcula una sola vez: la ubicacion del jar no cambia durante la ejecucion. */
+    private static final Path DIRECTORY = locate();
+
     private AppDirectory() {
     }
 
     public static Path get() {
+        return DIRECTORY;
+    }
+
+    private static Path locate() {
         try {
             final Path location = Path.of(AppDirectory.class.getProtectionDomain()
                     .getCodeSource().getLocation().toURI());

@@ -3,23 +3,25 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.carlosalbertoxw</groupId>
     <artifactId>JavaQuartzScheduler</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
     <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>21</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
 
         <quartz.version>2.5.2</quartz.version>
         <slf4j.version>2.0.19</slf4j.version>
-        <logback.version>1.6.3</logback.version>
-        <jackson.version>2.22.3</jackson.version>
+        <logback.version>1.6.6</logback.version>
+        <jackson.version>2.23.0</jackson.version>
         <junit.version>6.1.3</junit.version>
-        <mockito.version>5.23.0</mockito.version>
+        <mockito.version>5.24.0</mockito.version>
         <compiler.plugin.version>3.16.0</compiler.plugin.version>
         <dependency.plugin.version>3.11.0</dependency.plugin.version>
         <shade.plugin.version>3.6.2</shade.plugin.version>
         <surefire.plugin.version>3.6.0</surefire.plugin.version>
+        <enforcer.plugin.version>3.7.0</enforcer.plugin.version>
+        <editorconfig.plugin.version>0.2.0</editorconfig.plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -84,8 +86,57 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
+        <!-- Nombre fijo (sin version) para que los archivos de deploy/ no cambien entre versiones -->
+        <finalName>${project.artifactId}</finalName>
         <plugins>
+            <!-- Exige versiones minimas de Maven y Java antes de compilar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.9</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${maven.compiler.release}</version>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Verifica en "verify" que los archivos respeten .editorconfig (corregir: mvnw editorconfig:format) -->
+            <plugin>
+                <groupId>org.ec4j.maven</groupId>
+                <artifactId>editorconfig-maven-plugin</artifactId>
+                <version>${editorconfig.plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>logs/**</exclude>
+                        <exclude>reports/**</exclude>
+                        <exclude>.settings/**</exclude>
+                        <exclude>.classpath</exclude>
+                        <exclude>.project</exclude>
+                        <exclude>mvnw</exclude>
+                        <exclude>mvnw.cmd</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -109,7 +160,9 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.plugin.version}</version>
                 <configuration>
-                    <!-- Desde Java 21 los agentes cargados dinamicamente generan advertencias -->
+                    <!-- Mockito se carga como agente al arrancar: desde Java 21 cargarlo de forma
+                         dinamica genera advertencias. -Xshare:off evita el aviso de CDS
+                         ("Sharing is only supported for boot loader classes...") al agregar el agente. -->
                     <argLine>-javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
                 </configuration>
             </plugin>
@@ -124,7 +177,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>

@@ -7,7 +7,7 @@
 # Zona horaria: ID IANA (p. ej. America/Mexico_City). Vacio = UTC.
 routines:
   # Ejemplo minimo: cada minuto registra inicio y fin.
-  - name: RoutineJob
+  - name: Example
     group: Routines
     service: Example
     cronExpression: "0 * * ? * *"

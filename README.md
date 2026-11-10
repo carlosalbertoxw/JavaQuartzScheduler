@@ -3,7 +3,7 @@
 [![build](https://github.com/carlosalbertoxw/JavaQuartzScheduler/actions/workflows/build.yml/badge.svg)](https://github.com/carlosalbertoxw/JavaQuartzScheduler/actions/workflows/build.yml)
 
 Ejemplo de automatización de tareas (rutinas) con [Quartz Scheduler](https://www.quartz-scheduler.org/)
-sobre **Java 21**, con configuración externa en YAML, validación al arrancar y logging con SLF4J + Logback.
+sobre **Java 25**, con configuración externa en YAML, validación al arrancar y logging con SLF4J + Logback.
 Está pensado como plantilla base para automatizar trabajos periódicos en Java.
 
 Proyecto hermano en .NET: [CSharpQuartzScheduler](https://github.com/carlosalbertoxw/CSharpQuartzScheduler).
@@ -24,7 +24,9 @@ Ambos tienen la misma estructura, las mismas rutinas de ejemplo y el mismo compo
   están en curso y espera a que terminen.
 - **Logs** en consola y en archivo con rotación diaria, en `logs/` junto al jar (también al correr como servicio).
 - Se puede ejecutar como servicio de Windows (WinSW) o de Linux (systemd).
-- Pruebas unitarias con JUnit 6 + Mockito y CI en GitHub Actions.
+- Pruebas unitarias con JUnit 6 + Mockito.
+- CI en GitHub Actions (Linux y Windows) que compila, valida `.editorconfig` y prueba; Dependabot propone
+  actualizaciones mensuales.
 
 ## Estructura
 
@@ -56,14 +58,17 @@ src/test/                             # Pruebas unitarias (JUnit 6 + Mockito) y 
 deploy/
 ├── windows/JavaQuartzScheduler.xml   # Servicio de Windows con WinSW
 └── linux/javaquartzscheduler.service # Unidad de systemd
-.github/workflows/build.yml           # CI: compila y ejecuta las pruebas
+.github/
+├── workflows/build.yml               # CI: compilación, formato y pruebas en Linux y Windows
+└── dependabot.yml                    # Actualizaciones mensuales de Maven y GitHub Actions
 mvnw, mvnw.cmd, .mvn/                 # Maven Wrapper
+LICENSE                               # Licencia MIT
 ```
 
 ## Requisitos
 
-- Java 21 o superior
-- Maven no es necesario: el proyecto incluye Maven Wrapper (`mvnw` / `mvnw.cmd`), que descarga Maven 3.9.11
+- Java 25 o superior (el build lo verifica con `maven-enforcer-plugin`)
+- Maven no es necesario: el proyecto incluye Maven Wrapper (`mvnw` / `mvnw.cmd`), que descarga Maven 3.9.16
   la primera vez.
 
 ## Compilación y pruebas
@@ -73,7 +78,8 @@ mvnw, mvnw.cmd, .mvn/                 # Maven Wrapper
 ```
 
 En Windows usa `mvnw.cmd` en lugar de `./mvnw`. Se genera el jar ejecutable (con todas las dependencias
-incluidas) en `target/JavaQuartzScheduler-3.0-shaded.jar`.
+incluidas) en `target/JavaQuartzScheduler.jar`. El nombre no lleva la versión, así que los archivos de `deploy/`
+no cambian entre versiones.
 
 Solo las pruebas:
 
@@ -93,12 +99,12 @@ Solo las pruebas:
 ## Ejecución
 
 ```bash
-java -jar target/JavaQuartzScheduler-3.0-shaded.jar
+java -jar target/JavaQuartzScheduler.jar
 ```
 
 La configuración se lee del primer archivo que se encuentre:
 
-1. La ruta indicada como primer argumento: `java -jar JavaQuartzScheduler-3.0-shaded.jar C:\config\routines.yml`
+1. La ruta indicada como primer argumento: `java -jar JavaQuartzScheduler.jar C:\config\routines.yml`
 2. `routines.yml` junto al jar.
 3. El `routines.yml` incluido en el jar (las rutinas descritas abajo).
 
@@ -120,7 +126,7 @@ Son las mismas que en CSharpQuartzScheduler:
 
 | Rutina          | Servicio (`service`)                      | Cuándo corre                                      | Qué hace                                                         |
 |-----------------|-------------------------------------------|---------------------------------------------------|------------------------------------------------------------------|
-| `RoutineJob`    | `ExampleRoutineService` (`Example`)       | Cada minuto (UTC)                                 | Ejemplo mínimo: registra inicio y fin.                           |
+| `Example`       | `ExampleRoutineService` (`Example`)       | Cada minuto (UTC)                                 | Ejemplo mínimo: registra inicio y fin.                           |
 | `DailyReport`   | `DailyReportService` (`DailyReport`)      | Lunes a viernes a las 7:00, `America/Mexico_City` | Escribe `reports/report-<fecha>.txt` con un resumen del equipo.  |
 | `ReportCleanup` | `ReportCleanupService` (`ReportCleanup`)  | Todos los días a las 3:30 (UTC)                   | Borra los `report-*.txt` con más de `retentionDays` días.        |
 
@@ -183,7 +189,8 @@ Una clave desconocida (por ejemplo `cron` en lugar de `cronExpression`) se repor
 > Unix. Prueba expresiones en
 > [freeformatter.com/cron-expression-generator-quartz](https://www.freeformatter.com/cron-expression-generator-quartz.html).
 
-El scheduler (nombre, número de hilos y umbral de *misfire*) se configura en `src/main/resources/quartz.properties`.
+El scheduler (nombre y número de hilos) se configura en `src/main/resources/quartz.properties`; lo demás usa los
+valores por defecto de Quartz (`RAMJobStore` y umbral de *misfire* de 60 s).
 
 ## Agregar una rutina
 
@@ -228,11 +235,18 @@ El logging usa **SLF4J + Logback** (`src/main/resources/logback.xml`). Los logs 
 máximo). Puedes cambiar la carpeta con la propiedad del sistema `log.dir`:
 
 ```bash
-java -Dlog.dir=/var/log/jqs -jar target/JavaQuartzScheduler-3.0-shaded.jar
+java -Dlog.dir=/var/log/jqs -jar target/JavaQuartzScheduler.jar
 ```
 
 Al ejecutar desde el IDE o con Maven (sin jar), `logs/` y `reports/` se crean en el directorio de trabajo; ambos
 están excluidos del repositorio en `.gitignore`.
+
+Cada línea escrita durante una ejecución incluye la rutina que la generó (`%X{routine}` en el patrón, p. ej.
+`Reports.DailyReport`), útil cuando varias rutinas corren a la vez:
+
+```
+2026-11-10 07:00:00 INFO  DailyReportService Reports.DailyReport - Reporte diario generado en ...
+```
 
 ## Instalar como servicio
 
@@ -275,6 +289,17 @@ sobre el proyecto → *Run As → JUnit Test*. Los archivos específicos de Ecli
 
 ## Historial de versiones
 
+### 3.1
+
+- Java 25, Maven 3.9.16 y dependencias actualizadas.
+- El jar ejecutable se llama `JavaQuartzScheduler.jar` (sin versión); los archivos de `deploy/` ya no cambian
+  entre versiones.
+- La rutina de ejemplo se llama `Example` (antes `RoutineJob`, igual que la clase del job).
+- Los logs incluyen la rutina en ejecución.
+- El build verifica las versiones de Maven/Java y el formato de `.editorconfig`; CI en Linux y Windows y
+  Dependabot.
+- Licencia MIT.
+
 ### 3.0
 
 - Varias rutinas configurables en `routines.yml`, con zona horaria por rutina y validación al arrancar.
@@ -290,3 +315,7 @@ sobre el proyecto → *Run As → JUnit Test*. Los archivos específicos de Ecli
 ### 2.0
 
 - Una sola tarea (`Worker`) con cron por argumento, Java 17, SLF4J + Logback y pruebas con JUnit 5.
+
+## Licencia
+
+[MIT](LICENSE).

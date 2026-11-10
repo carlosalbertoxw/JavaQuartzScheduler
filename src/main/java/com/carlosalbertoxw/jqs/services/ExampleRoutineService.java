@@ -1,7 +1,5 @@
 package com.carlosalbertoxw.jqs.services;
 
-import java.time.OffsetDateTime;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,7 @@ public class ExampleRoutineService implements RoutineService {
 
     @Override
     public void run() throws InterruptedException {
-        LOG.info("Rutina iniciada a las {}", OffsetDateTime.now());
+        LOG.info("Rutina iniciada.");
 
         // Simula trabajo respetando la interrupcion (apagado ordenado).
         Thread.sleep(200);

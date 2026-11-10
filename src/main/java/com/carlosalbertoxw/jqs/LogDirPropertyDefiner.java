@@ -8,7 +8,7 @@ import ch.qos.logback.core.PropertyDefinerBase;
  */
 public class LogDirPropertyDefiner extends PropertyDefinerBase {
 
-    static final String LOG_DIR_PROPERTY = "log.dir";
+    private static final String LOG_DIR_PROPERTY = "log.dir";
 
     @Override
     public String getPropertyValue() {

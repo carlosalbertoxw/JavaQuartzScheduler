@@ -64,7 +64,7 @@ class MainTest {
         AppConfig config = Main.loadConfig(new String[0]);
         RoutineServices services = Main.registerServices(config.getReports(), Clock.systemUTC());
 
-        assertEquals(List.of("RoutineJob", "DailyReport", "ReportCleanup"),
+        assertEquals(List.of("Example", "DailyReport", "ReportCleanup"),
                 config.getRoutines().stream().map(RoutineConfig::getName).toList());
         assertEquals(List.of(), Main.validate(config, services));
     }
